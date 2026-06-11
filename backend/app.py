@@ -10,11 +10,20 @@ app = Flask(__name__)
 CORS(app)
 
 # Load trained model
-model = joblib.load("../model/spam_model.pkl")
-
 # Load vectorizer
-vectorizer = joblib.load("../model/vectorizer.pkl")
 
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+model_path = os.path.join(BASE_DIR, "..", "model", "spam_model.pkl")
+
+vectorizer_path = os.path.join(BASE_DIR, "..", "model", "vectorizer.pkl")
+
+model = joblib.load(model_path)
+
+vectorizer = joblib.load(vectorizer_path)
+ 
 # Initialize stemmer
 stemmer = PorterStemmer()
 
