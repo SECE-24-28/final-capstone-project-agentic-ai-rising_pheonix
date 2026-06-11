@@ -14,7 +14,7 @@ async function predictSpam() {
     try {
 
         const response = await fetch(
-            "http://127.0.0.1:5000/predict",
+            "https://spam-detection-system-hebj.onrender.com/",
             {
                 method: "POST",
 
