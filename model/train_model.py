@@ -8,7 +8,7 @@ from nltk.stem import PorterStemmer
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
-from sklearn.naive_bayes import MultinomialNB
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 
 # Download stopwords
@@ -19,17 +19,15 @@ print("Loading dataset...")
 # Load dataset
 df = pd.read_csv("../datasets/spam.csv", encoding='latin-1')
 
-print("Dataset loaded successfully")
-
-# Keep only first two columns
+# Keep required columns only
 df = df[['v1', 'v2']]
 
 # Rename columns
 df.columns = ['label', 'message']
 
-print(df.head())
+print("Dataset loaded successfully")
 
-# Convert labels
+# Convert labels to numeric
 df['label'] = df['label'].map({
     'ham': 0,
     'spam': 1
@@ -41,15 +39,19 @@ stemmer = PorterStemmer()
 # Load stopwords once
 stop_words = set(stopwords.words('english'))
 
-# Clean text function
+# Text preprocessing function
 def clean_text(text):
 
+    # Convert to lowercase
     text = text.lower()
 
+    # Remove special characters and numbers
     text = re.sub(r'[^a-zA-Z]', ' ', text)
 
+    # Split into words
     words = text.split()
 
+    # Remove stopwords and apply stemming
     words = [
         stemmer.stem(word)
         for word in words
@@ -65,8 +67,11 @@ df['clean_message'] = df['message'].apply(clean_text)
 
 print("Text cleaned successfully")
 
-# TF-IDF Vectorization
-tfidf = TfidfVectorizer(max_features=5000)
+# TF-IDF vectorization
+tfidf = TfidfVectorizer(
+    max_features=10000,
+    ngram_range=(1, 2)
+)
 
 X = tfidf.fit_transform(df['clean_message']).toarray()
 
@@ -84,8 +89,8 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 print("Training model...")
 
-# Train model
-model = MultinomialNB()
+# Train Logistic Regression model
+model = LogisticRegression(max_iter=1000)
 
 model.fit(X_train, y_train)
 
@@ -99,14 +104,14 @@ accuracy = accuracy_score(y_test, y_pred)
 
 print("Accuracy:", accuracy)
 
-# Save model
+# Save trained model
 joblib.dump(model, "spam_model.pkl")
 
-print("Model saved")
+print("Model saved successfully")
 
 # Save vectorizer
 joblib.dump(tfidf, "vectorizer.pkl")
 
-print("Vectorizer saved")
+print("Vectorizer saved successfully")
 
 print("ALL DONE SUCCESSFULLY")
